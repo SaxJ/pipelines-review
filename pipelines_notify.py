@@ -29,6 +29,10 @@ def sendEmails(toList):
     server.sendmail(username, toList, msg)
     server.quit()
 
+# WIP
+def updatePR(toList):
+    requests.put('/2.0/repositories/{username}/{repo_slug}/pullrequests/{pull_request_id}')
+
 
 diffResult = subprocess.run(['git', 'diff', '--name-only', 'master..develop'], stdout=subprocess.PIPE).stdout.decode('utf-8')
 filePaths = diffResult.splitlines()
