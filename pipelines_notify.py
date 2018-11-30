@@ -4,6 +4,7 @@
 
 import subprocess
 import os
+import requests
 
 def getFolders(path):
     path = os.path.normpath(path)
@@ -31,7 +32,13 @@ def sendEmails(toList):
 
 # WIP
 def updatePR(toList):
-    requests.put('/2.0/repositories/{username}/{repo_slug}/pullrequests/{pull_request_id}')
+    prId = os.environ['BITBUCKET_PR_ID']
+    owner = os.environ['BITBUCKET_REPO_OWNER']
+    repoSlug = os.environ['BITBUCKET_REPO_SLUG']
+
+    revers = [{'username': x} for x in toList]
+
+    requests.put('https://api.bitbucket.org/2.0/repositories/{}/{}/pullrequests/{}'.format(owner, repoSlug, prId), data={'reviewers': revers})
 
 
 diffResult = subprocess.run(['git', 'diff', '--name-only', 'master..develop'], stdout=subprocess.PIPE).stdout.decode('utf-8')
