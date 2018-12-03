@@ -1,17 +1,21 @@
-# Repo Owners Notifier
-A simple python3 script to send an email to owners specified in an OWNERS file
-places in the repository subdirectories.
+# Bitbucket Pipelines Notifier
+A simple python script (all dockerised) to automagically add reviews to a PR
+based on the files modified in the PR.
+
+To do this, an `OWNERS` file containing one username per line is placed in a directory.
+If any files in that directory or any sub-directories are modified, the usernames in that 
+OWNERS file are added to the pull request as reviewers.
 
 # How to use it?
 Add a pipelines step in your projects `bitbucket-pipelines.yml` calling
-`python /pipelines-notify/pipelines_notify.py`. Like so:
+`python /pipelines_notify.py`. Like so:
 
 ```
     - step:
         name: Pipelines notifier
         image: saxonj/pipelines-notify:develop
         script:
-        - python /pipelines-notify/pipelines_notify.py
+        - python /pipelines_notify.py
 ```
 
 The script needs the following environment variables to be set in the pipeline:
