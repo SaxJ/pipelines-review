@@ -37,7 +37,7 @@ def main(argv):
     repoSlug = os.environ['BITBUCKET_REPO_SLUG']
     username = os.environ['API_USERNAME']
     password = os.environ['API_APP_PASSWORD']
-    resp = requests.get('https://api.bitbucket.org/2.0/repositories/{}/{}/pullrequests/{}/diff'.format(owner, repoSlug, prId), auth=(username, password))
+    resp = requests.get('https://api.bitbucket.org/2.0/repositories/{}/{}/pullrequests/{}/diff'.format(owner, repoSlug, prId), auth=(username, password), allow_redirects=True)
 
     print('Git diff')
     print('=============================')
