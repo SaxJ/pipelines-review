@@ -41,9 +41,9 @@ def main(argv):
 
     print('Git diff')
     print('=============================')
-    print(resp)
+    print(resp.text)
     patches = PatchSet.from_string(resp.text)
-    filePaths = [p.source_file for p in patches]
+    filePaths = [p.path for p in patches]
 
     print('File paths')
     print(filePaths)
