@@ -29,6 +29,7 @@ def updatePR(toList):
 
 
 def main(argv):
+    print('Changing to clone dir')
     os.chdir(os.environ['BITBUCKET_CLONE_DIR'])
 
     prId = os.environ['BITBUCKET_PR_ID']
@@ -37,9 +38,15 @@ def main(argv):
     username = os.environ['API_USERNAME']
     password = os.environ['API_APP_PASSWORD']
     resp = requests.get('https://api.bitbucket.org/2.0/repositories/{}/{}/pullrequests/{}/diff'.format(owner, repoSlug, prId), auth=(username, password))
+
+    print('Git diff')
+    print('=============================')
+    print(resp.text)
     patches = PatchSet(resp.text)
     filePaths = [p.source_file for p in patches]
 
+    print('File paths')
+    print(filePaths)
     users = set()
     for path in filePaths:
         folders = getFolders(path)
