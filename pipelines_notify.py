@@ -30,7 +30,10 @@ def updatePR(toList):
 def main(argv):
     os.chdir(os.environ['BITBUCKET_CLONE_DIR'])
 
-    diffResult = subprocess.run(['git', 'diff', '--name-only', 'master..develop'], stdout=subprocess.PIPE).stdout.decode('utf-8')
+    sourceBranch = os.environ['BITBUCKET_BRANCH']
+    destBranch = os.environ['BITBUCKET_PR_DESTINATION_BRANCH']
+
+    diffResult = subprocess.run(['git', 'diff', '--name-only', '{}..{}'.format(sourceBranch, destBranch)], stdout=subprocess.PIPE).stdout.decode('utf-8')
     filePaths = diffResult.splitlines()
 
     users = set()
