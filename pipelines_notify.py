@@ -33,7 +33,8 @@ def main(argv):
     sourceBranch = os.environ['BITBUCKET_BRANCH']
     destBranch = os.environ['BITBUCKET_PR_DESTINATION_BRANCH']
 
-    diffResult = subprocess.run(['git', 'diff', '--name-only', '{}..{}'.format(sourceBranch, destBranch)], stdout=subprocess.PIPE).stdout.decode('utf-8')
+    subprocess.run(['git', 'fetch', 'origin', '{}:temp'.format(destBranch)])
+    diffResult = subprocess.run(['git', 'diff', '--name-only', 'temp...HEAD'], stdout=subprocess.PIPE).stdout.decode('utf-8')
     filePaths = diffResult.splitlines()
 
     users = set()
