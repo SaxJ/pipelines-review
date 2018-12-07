@@ -6,6 +6,7 @@ import subprocess
 import os
 import requests
 import sys
+from unidiff import PatchSet
 
 def getFolders(path):
     path = os.path.normpath(path)
@@ -30,10 +31,14 @@ def updatePR(toList):
 def main(argv):
     os.chdir(os.environ['BITBUCKET_CLONE_DIR'])
 
-    destBranch = os.environ['BITBUCKET_PR_DESTINATION_BRANCH']
-
-    diffResult = subprocess.run(['git', 'diff', '--name-only', 'temp...HEAD'], stdout=subprocess.PIPE).stdout.decode('utf-8')
-    filePaths = diffResult.splitlines()
+    prId = os.environ['BITBUCKET_PR_ID']
+    owner = os.environ['BITBUCKET_REPO_OWNER']
+    repoSlug = os.environ['BITBUCKET_REPO_SLUG']
+    username = os.environ['API_USERNAME']
+    password = os.environ['API_APP_PASSWORD']
+    resp = requests.get('https://api.bitbucket.org/2.0/repositories/{}/{}/pullrequests/{}/diff'.format(owner, repoSlug, prId), auth=(username, password))
+    patches = PatchSet(resp.text)
+    filePaths = [p.source_file for p in patches]
 
     users = set()
     for path in filePaths:
