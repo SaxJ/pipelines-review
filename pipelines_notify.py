@@ -30,7 +30,6 @@ def updatePR(toList):
 def main(argv):
     os.chdir(os.environ['BITBUCKET_CLONE_DIR'])
 
-    sourceBranch = os.environ['BITBUCKET_BRANCH']
     destBranch = os.environ['BITBUCKET_PR_DESTINATION_BRANCH']
 
     subprocess.run(['git', 'fetch', 'origin', '{}:temp'.format(destBranch)])
