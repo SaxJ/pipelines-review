@@ -25,7 +25,11 @@ def updatePR(toList):
 
     revers = [{'username': x} for x in toList]
 
-    requests.put('https://api.bitbucket.org/2.0/repositories/{}/{}/pullrequests/{}'.format(owner, repoSlug, prId), data={'reviewers': revers}, auth=(username, password))
+    resp = requests.put('https://api.bitbucket.org/2.0/repositories/{}/{}/pullrequests/{}'.format(owner, repoSlug, prId), data={'reviewers': revers}, auth=(username, password), allow_redirects=True)
+    print('OWNERS')
+    print(toList)
+    print('PUT pullrequest info')
+    print(resp)
 
 
 def main(argv):
