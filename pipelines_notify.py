@@ -16,12 +16,17 @@ def makePath(folders, end):
     lead = '.' + os.sep
     return lead + os.sep.join(folders[0:end]) + (os.sep if len(folders[0:end]) else '') + 'OWNERS'
 
-def updatePR(toList, author, title, existingReviewers):
+def getEnvironment():
     prId = os.environ['BITBUCKET_PR_ID']
     owner = os.environ['BITBUCKET_REPO_OWNER']
     repoSlug = os.environ['BITBUCKET_REPO_SLUG']
     username = os.environ['API_USERNAME']
     password = os.environ['API_APP_PASSWORD']
+
+    return (prId, owner, repoSlug, username, password)
+
+def updatePR(toList, author, title, existingReviewers):
+    (prId, owner, repoSlug, username, password) = getEnvironment()
 
     revers = [{'username': x.strip()} for x in toList if author != x.strip()]
     revers.extend(existingReviewers)
@@ -32,11 +37,7 @@ def updatePR(toList, author, title, existingReviewers):
     print(resp.text)
 
 def inspectPR():
-    prId = os.environ['BITBUCKET_PR_ID']
-    owner = os.environ['BITBUCKET_REPO_OWNER']
-    repoSlug = os.environ['BITBUCKET_REPO_SLUG']
-    username = os.environ['API_USERNAME']
-    password = os.environ['API_APP_PASSWORD']
+    (prId, owner, repoSlug, username, password) = getEnvironment()
     resp = requests.get('https://api.bitbucket.org/2.0/repositories/{}/{}/pullrequests/{}'.format(owner, repoSlug, prId), auth=(username, password), allow_redirects=True)
 
     return resp.json()
@@ -48,11 +49,7 @@ def main(argv):
     existing = inspectPR()
     
 
-    prId = os.environ['BITBUCKET_PR_ID']
-    owner = os.environ['BITBUCKET_REPO_OWNER']
-    repoSlug = os.environ['BITBUCKET_REPO_SLUG']
-    username = os.environ['API_USERNAME']
-    password = os.environ['API_APP_PASSWORD']
+    (prId, owner, repoSlug, username, password) = getEnvironment()
     resp = requests.get('https://api.bitbucket.org/2.0/repositories/{}/{}/pullrequests/{}/diff'.format(owner, repoSlug, prId), auth=(username, password), allow_redirects=True)
     print('DIFF')
     print('========')
