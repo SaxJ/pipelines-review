@@ -16,7 +16,7 @@ def makePath(folders, end):
     lead = '.' + os.sep
     return lead + os.sep.join(folders[0:end]) + (os.sep if len(folders[0:end]) else '') + 'OWNERS'
 
-def updatePR(toList, author, title):
+def updatePR(toList, author, title, existingReviewers):
     prId = os.environ['BITBUCKET_PR_ID']
     owner = os.environ['BITBUCKET_REPO_OWNER']
     repoSlug = os.environ['BITBUCKET_REPO_SLUG']
@@ -24,9 +24,11 @@ def updatePR(toList, author, title):
     password = os.environ['API_APP_PASSWORD']
 
     revers = [{'username': x.strip()} for x in toList if author != x.strip()]
+    revers.extend(existingReviewers)
 
     resp = requests.put('https://api.bitbucket.org/2.0/repositories/{}/{}/pullrequests/{}'.format(owner, repoSlug, prId), json={'title': title, 'reviewers': revers}, auth=(username, password), allow_redirects=True)
     print(resp.request.body)
+    print('=========')
     print(resp.text)
 
 def inspectPR():
@@ -69,7 +71,8 @@ def main(argv):
                     for line in f:
                         users.add(line)
 
-    updatePR(list(users), existing['author']['username'], existing['title'])
+    existingReviewers = [{'username': x['username']} for x in existing['reviewers']]
+    updatePR(list(users), existing['author']['username'], existing['title'], existingReviewers)
 
 if __name__ == "__main__":
    main(sys.argv[1:])
