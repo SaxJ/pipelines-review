@@ -16,21 +16,35 @@ def makePath(folders, end):
     lead = '.' + os.sep
     return lead + os.sep.join(folders[0:end]) + (os.sep if len(folders[0:end]) else '') + 'OWNERS'
 
-def updatePR(toList):
+def updatePR(toList, author, title):
     prId = os.environ['BITBUCKET_PR_ID']
     owner = os.environ['BITBUCKET_REPO_OWNER']
     repoSlug = os.environ['BITBUCKET_REPO_SLUG']
     username = os.environ['API_USERNAME']
     password = os.environ['API_APP_PASSWORD']
 
-    revers = [{'username': x} for x in toList]
+    revers = [{'username': x.strip()} for x in toList if author != x.strip()]
 
-    resp = requests.put('https://api.bitbucket.org/2.0/repositories/{}/{}/pullrequests/{}'.format(owner, repoSlug, prId), data={'reviewers': revers}, auth=(username, password), allow_redirects=True)
+    resp = requests.put('https://api.bitbucket.org/2.0/repositories/{}/{}/pullrequests/{}'.format(owner, repoSlug, prId), json={'title': title, 'reviewers': revers}, auth=(username, password), allow_redirects=True)
+    print(resp.request.body)
+    print(resp.text)
+
+def inspectPR():
+    prId = os.environ['BITBUCKET_PR_ID']
+    owner = os.environ['BITBUCKET_REPO_OWNER']
+    repoSlug = os.environ['BITBUCKET_REPO_SLUG']
+    username = os.environ['API_USERNAME']
+    password = os.environ['API_APP_PASSWORD']
+    resp = requests.get('https://api.bitbucket.org/2.0/repositories/{}/{}/pullrequests/{}'.format(owner, repoSlug, prId), auth=(username, password), allow_redirects=True)
+
+    return resp.json()
 
 
 def main(argv):
     print('Changing to clone dir')
     os.chdir(os.environ['BITBUCKET_CLONE_DIR'])
+    existing = inspectPR()
+    
 
     prId = os.environ['BITBUCKET_PR_ID']
     owner = os.environ['BITBUCKET_REPO_OWNER']
@@ -38,11 +52,12 @@ def main(argv):
     username = os.environ['API_USERNAME']
     password = os.environ['API_APP_PASSWORD']
     resp = requests.get('https://api.bitbucket.org/2.0/repositories/{}/{}/pullrequests/{}/diff'.format(owner, repoSlug, prId), auth=(username, password), allow_redirects=True)
+    print('DIFF')
+    print('========')
+    print(resp.text)
 
     patches = PatchSet.from_string(resp.text)
     filePaths = [p.path for p in patches]
-    print('Checking paths:')
-    print(filePaths)
 
     users = set()
     for path in filePaths:
@@ -54,7 +69,7 @@ def main(argv):
                     for line in f:
                         users.add(line)
 
-    updatePR(list(users))
+    updatePR(list(users), existing['author']['username'], existing['title'])
 
 if __name__ == "__main__":
    main(sys.argv[1:])
