@@ -9,7 +9,7 @@ import sys
 from unidiff import PatchSet
 
 def getFolders(path):
-    path = os.path.normpath(path)
+    path = '.' + os.sep + os.path.normpath(path)
     return path.split(os.sep)
 
 def makePath(folders, end):
@@ -26,10 +26,6 @@ def updatePR(toList):
     revers = [{'username': x} for x in toList]
 
     resp = requests.put('https://api.bitbucket.org/2.0/repositories/{}/{}/pullrequests/{}'.format(owner, repoSlug, prId), data={'reviewers': revers}, auth=(username, password), allow_redirects=True)
-    print('OWNERS')
-    print(toList)
-    print('PUT pullrequest info')
-    print(resp)
 
 
 def main(argv):
@@ -43,14 +39,11 @@ def main(argv):
     password = os.environ['API_APP_PASSWORD']
     resp = requests.get('https://api.bitbucket.org/2.0/repositories/{}/{}/pullrequests/{}/diff'.format(owner, repoSlug, prId), auth=(username, password), allow_redirects=True)
 
-    print('Git diff')
-    print('=============================')
-    print(resp.text)
     patches = PatchSet.from_string(resp.text)
     filePaths = [p.path for p in patches]
-
-    print('File paths')
+    print('Checking paths:')
     print(filePaths)
+
     users = set()
     for path in filePaths:
         folders = getFolders(path)
