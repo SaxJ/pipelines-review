@@ -25,20 +25,24 @@ def getEnvironment():
 
     return (prId, owner, repoSlug, username, password)
 
+def makeAPIString():
+    (prId, owner, repoSlug, username, password) = getEnvironment()
+    return f'https://api.bitbucket.org/2.0/repositories/{owner}/{repoSlug}/pullrequests/{prId}'
+
 def updatePR(toList, author, title, existingReviewers):
     (prId, owner, repoSlug, username, password) = getEnvironment()
 
     revers = [{'username': x.strip()} for x in toList if author != x.strip()]
     revers.extend(existingReviewers)
 
-    resp = requests.put('https://api.bitbucket.org/2.0/repositories/{}/{}/pullrequests/{}'.format(owner, repoSlug, prId), json={'title': title, 'reviewers': revers}, auth=(username, password), allow_redirects=True)
+    resp = requests.put(makeAPIString(), json={'title': title, 'reviewers': revers}, auth=(username, password), allow_redirects=True)
     print(resp.request.body)
     print('=========')
     print(resp.text)
 
 def inspectPR():
     (prId, owner, repoSlug, username, password) = getEnvironment()
-    resp = requests.get('https://api.bitbucket.org/2.0/repositories/{}/{}/pullrequests/{}'.format(owner, repoSlug, prId), auth=(username, password), allow_redirects=True)
+    resp = requests.get(makeAPIString(), auth=(username, password), allow_redirects=True)
 
     return resp.json()
 
@@ -50,7 +54,7 @@ def main(argv):
     
 
     (prId, owner, repoSlug, username, password) = getEnvironment()
-    resp = requests.get('https://api.bitbucket.org/2.0/repositories/{}/{}/pullrequests/{}/diff'.format(owner, repoSlug, prId), auth=(username, password), allow_redirects=True)
+    resp = requests.get(makeAPIString() + '/diff', auth=(username, password), allow_redirects=True)
     print('DIFF')
     print('========')
     print(resp.text)
