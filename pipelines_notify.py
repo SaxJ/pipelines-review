@@ -13,8 +13,7 @@ def getFolders(path):
     return path.split(os.sep)
 
 def makePath(folders, end):
-    lead = '.' + os.sep
-    return lead + os.sep.join(folders[0:end]) + (os.sep if len(folders[0:end]) else '') + 'OWNERS'
+    return os.sep.join(folders[0:end]) + (os.sep if len(folders[0:end]) else '') + 'OWNERS'
 
 def getEnvironment():
     prId = os.environ['BITBUCKET_PR_ID']
@@ -65,12 +64,15 @@ def main(argv):
     users = set()
     for path in filePaths:
         folders = getFolders(path)
-        for idx, folder in enumerate(folders[0:-1]):
+        print(folders)
+        for idx, folder in enumerate(folders):
             ownersFile = makePath(folders, idx)
+            print(f'Try {ownersFile}')
             if os.path.exists(ownersFile):
                 with open(ownersFile) as f:
                     for line in f:
                         users.add(line)
+    print(users)
 
     existingReviewers = [{'username': x['username']} for x in existing['reviewers']]
     updatePR(list(users), existing['author']['username'], existing['title'], existingReviewers)
