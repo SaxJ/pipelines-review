@@ -1,5 +1,5 @@
 # Bitbucket Pipelines Notifier
-A simple python script (all dockerised) to automagically add reviews to a PR
+A simple python script (all dockerised) to automagically add reviewers to a PR
 based on the files modified in the PR.
 
 To do this, an `OWNERS` file containing one username per line is placed in a directory.
@@ -11,11 +11,14 @@ Add a pipelines step in your projects `bitbucket-pipelines.yml` calling
 `python /pipelines_notify.py`. Like so:
 
 ```
-    - step:
-        name: Pipelines notifier
-        image: saxonj/pipelines-notify:develop
-        script:
-        - python /pipelines_notify.py
+  pull-requests:
+    '**':
+      - parallel:
+        - step:
+            name: Add Reviewers
+            image: saxonj/pipelines-review:latest
+            script:
+              - python /pipelines_notify.py
 ```
 
 The script needs the following environment variables to be set in the pipeline:
