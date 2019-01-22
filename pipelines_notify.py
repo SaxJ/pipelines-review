@@ -50,6 +50,8 @@ def main(argv):
     print('Changing to clone dir')
     os.chdir(os.environ['BITBUCKET_CLONE_DIR'])
     existing = inspectPR()
+    if '[WIP]' in existing['title']:
+        return
     
 
     (prId, owner, repoSlug, username, password) = getEnvironment()
